@@ -347,6 +347,7 @@ namespace SanguinaireRacesCompatibility
                         }
                     }
                 }
+                var racesToAdd = new List<FormKey>();
                 foreach( var race in arma.AdditionalRaces)
                 {
                     if(vampRacesMap.Keys.Contains(race.FormKey))
@@ -355,11 +356,15 @@ namespace SanguinaireRacesCompatibility
                         {
                             if (!arma.AdditionalRaces.Contains(vamp))
                             {
-                                if (pArma == null) pArma = state.PatchMod.ArmorAddons.GetOrAddAsOverride(arma);
-                                pArma.AdditionalRaces.Add(vamp);
+                                racesToAdd.Add(vamp);
                             }
                         }
                     }
+                }
+                if (racesToAdd.Count > 0)
+                {
+                    if (pArma == null) pArma = state.PatchMod.ArmorAddons.GetOrAddAsOverride(arma);
+                    pArma.AdditionalRaces.AddRange(racesToAdd);
                 }
             }
 
