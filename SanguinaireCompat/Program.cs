@@ -445,42 +445,23 @@ namespace SanguinaireRacesCompatibility
                 }
             }
 
-            var dialogueSet = new Dictionary<uint, List<IModContext<ISkyrimMod, ISkyrimModGetter, IDialogResponses, IDialogResponsesGetter>>>();
-            foreach (var item in state.LoadOrder.PriorityOrder.DialogResponses().WinningContextOverrides(state.LinkCache))
-            {
-                if (item.Parent?.Record is IDialogTopicGetter getter)
-                {
-                    if( !dialogueSet.ContainsKey(getter.FormKey.ID))
-                    {
-                        dialogueSet.Add(getter.FormKey.ID, new List<IModContext<ISkyrimMod, ISkyrimModGetter, IDialogResponses, IDialogResponsesGetter>>());
-                    }
-                    if (dialogueSet.TryGetValue(getter.FormKey.ID, out var values))
-                    {
-                        values.Add(item);
-                    }
-                }
-            }
-
             //var seenResponses = new HashSet<FormKey>();
             foreach (var dial in state.LoadOrder.PriorityOrder.DialogTopic().WinningOverrides())
             {
-                //DialogTopic? pDial = null;
+                DialogTopic? pDial = null;
 
                 var topicOverrides = dial.AsLink().ResolveAll(state.LinkCache);
                 foreach (var dialogTopic in topicOverrides)
                 {
-                    /** FIXME: It seems only 1st response is covered, lets see if commenting out helps /
+                    /** FIXME: It seems only 1st response is covered, lets see if commenting out helps */
                     for (var i = 0; i < dialogTopic.Responses.Count; i++)
                     {
                         DialogResponses? pInfo = null;
                         var info = dialogTopic.Responses[i];
                         //if (!seenResponses.Add(info.FormKey)) continue; */
-                    foreach (var info in dialogueSet[dialogTopic.FormKey.ID])
-                    {
-                        IDialogResponses? pInfo = null;
-                        for (var j = 0; j < info.Record.Conditions.Count; j++)
+                        for (var j = 0; j < info.Conditions.Count; j++)
                         {
-                            var cond = info.Record.Conditions[j];
+                            var cond = info.Conditions[j];
                             if (!(cond.Data is IFunctionConditionDataGetter)) continue;
                             var data = (IFunctionConditionDataGetter)cond.Data;
 
@@ -488,12 +469,12 @@ namespace SanguinaireRacesCompatibility
                             if (data.Function == Condition.Function.HasSpell
                                 && data.ParameterOneRecord.FormKey.ModKey.Equals(skyrim) && data.ParameterOneRecord.FormKey.ID == 0x0ED0A8)
                             {
-                                if (pInfo == null) pInfo = info.GetOrAddAsOverride(state.PatchMod);
-                                /*if (pDial == null)
+                                if (pInfo == null) pInfo = info.DeepCopy();
+                                if (pDial == null)
                                 {
                                     pDial = state.PatchMod.DialogTopics.GetOrAddAsOverride(dial);
                                     pDial.Responses.Add((DialogResponses)pInfo);
-                                }*/
+                                }
                                 UpdateCondition(pInfo.Conditions[j].Data, vampireKW, false);
                             }
 
@@ -501,12 +482,12 @@ namespace SanguinaireRacesCompatibility
                             if ((data.Function == Condition.Function.GetIsRace || data.Function == Condition.Function.GetPCIsRace)
                                 && vampKeywords.ContainsKey(data.ParameterOneRecord.FormKey))
                             {
-                                if (pInfo == null) pInfo = info.GetOrAddAsOverride(state.PatchMod);
-                                /*if (pDial == null)
+                                if (pInfo == null) pInfo = info.DeepCopy();
+                                if (pDial == null)
                                 {
                                     pDial = state.PatchMod.DialogTopics.GetOrAddAsOverride(dial);
                                     pDial.Responses.Add((DialogResponses)pInfo);
-                                }*/
+                                }
                                 UpdateCondition(pInfo.Conditions[j].Data, vampKeywords[data.ParameterOneRecord.FormKey], swapSubjectToPC: data.Function == Condition.Function.GetPCIsRace);
                             }
                         }
