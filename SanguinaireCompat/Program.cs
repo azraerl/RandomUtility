@@ -445,7 +445,7 @@ namespace SanguinaireRacesCompatibility
                 }
             }
 
-            //var seenResponses = new HashSet<FormKey>();
+            var seenResponses = new HashSet<FormKey>();
             foreach (var dial in state.LoadOrder.PriorityOrder.DialogTopic().WinningOverrides())
             {
                 DialogTopic? pDial = null;
@@ -453,12 +453,11 @@ namespace SanguinaireRacesCompatibility
                 var topicOverrides = dial.AsLink().ResolveAll(state.LinkCache);
                 foreach (var dialogTopic in topicOverrides)
                 {
-                    /** FIXME: It seems only 1st response is covered, lets see if commenting out helps */
                     for (var i = 0; i < dialogTopic.Responses.Count; i++)
                     {
                         DialogResponses? pInfo = null;
                         var info = dialogTopic.Responses[i];
-                        //if (!seenResponses.Add(info.FormKey)) continue; */
+                        if (!seenResponses.Add(info.FormKey)) continue;
                         for (var j = 0; j < info.Conditions.Count; j++)
                         {
                             var cond = info.Conditions[j];
@@ -473,8 +472,8 @@ namespace SanguinaireRacesCompatibility
                                 if (pDial == null)
                                 {
                                     pDial = state.PatchMod.DialogTopics.GetOrAddAsOverride(dial);
-                                    pDial.Responses.Add((DialogResponses)pInfo);
                                 }
+                                pDial.Responses.Add((DialogResponses)pInfo);
                                 UpdateCondition(pInfo.Conditions[j].Data, vampireKW, false);
                             }
 
@@ -486,8 +485,8 @@ namespace SanguinaireRacesCompatibility
                                 if (pDial == null)
                                 {
                                     pDial = state.PatchMod.DialogTopics.GetOrAddAsOverride(dial);
-                                    pDial.Responses.Add((DialogResponses)pInfo);
                                 }
+                                pDial.Responses.Add((DialogResponses)pInfo);
                                 UpdateCondition(pInfo.Conditions[j].Data, vampKeywords[data.ParameterOneRecord.FormKey], swapSubjectToPC: data.Function == Condition.Function.GetPCIsRace);
                             }
                         }
