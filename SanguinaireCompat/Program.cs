@@ -464,14 +464,13 @@ namespace SanguinaireRacesCompatibility
                             if (!(cond.Data is IFunctionConditionDataGetter)) continue;
                             var data = (IFunctionConditionDataGetter)cond.Data;
 
-                            bool added = false;
                             // case :: HasSpell(WVR_VampireVampirism "Vampirism" [SPEL:000ED0A8])
                             if (data.Function == Condition.Function.HasSpell
                                 && data.ParameterOneRecord.FormKey.ModKey.Equals(skyrim) && data.ParameterOneRecord.FormKey.ID == 0x0ED0A8)
                             {
                                 if (pInfo == null) pInfo = info.DeepCopy();
                                 if (pDial == null) pDial = state.PatchMod.DialogTopics.GetOrAddAsOverride(dial);
-                                added = true;      pDial.Responses.Add((DialogResponses)pInfo);
+                                if (!pDial.Responses.Contains((DialogResponses)pInfo)) pDial.Responses.Add((DialogResponses)pInfo);
 
                                 UpdateCondition(pInfo.Conditions[j].Data, vampireKW, false);
                             }
@@ -482,7 +481,8 @@ namespace SanguinaireRacesCompatibility
                             {
                                 if (pInfo == null) pInfo = info.DeepCopy();
                                 if (pDial == null) pDial = state.PatchMod.DialogTopics.GetOrAddAsOverride(dial);
-                                if (!added)        pDial.Responses.Add((DialogResponses)pInfo);
+                                if (!pDial.Responses.Contains((DialogResponses)pInfo)) pDial.Responses.Add((DialogResponses)pInfo);
+
                                 UpdateCondition(pInfo.Conditions[j].Data, vampKeywords[data.ParameterOneRecord.FormKey], swapSubjectToPC: data.Function == Condition.Function.GetPCIsRace);
                             }
                         }
